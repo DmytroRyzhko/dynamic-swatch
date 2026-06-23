@@ -1,0 +1,12 @@
+# Shopify TOML file.
+# - https://shopify.dev/docs/themes/tools/cli/commands#dev-flags
+# - https://shopify.dev/docs/themes/tools/cli/environments
+
+[environments.default]
+store = "digital-for-test"
+ignore = [
+  "config/settings_data.json",
+  "sections/*.json",
+  "templates/*.json",
+  "templates/**/*.json"
+]
