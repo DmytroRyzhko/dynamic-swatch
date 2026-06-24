@@ -1,2 +1,8 @@
 {{ 'overflow-list.css' | asset_url | preload_tag: as: 'style' }}
 {{ 'base.css' | asset_url | stylesheet_tag: preload: true }}
+
+{% if settings.show_dynamic_sibling_swatches %}
+  {% if request.page_type == 'collection' or request.page_type == 'search' %}
+    {{ 'dynamic-sibling-swatches.css' | asset_url | stylesheet_tag: preload: true }}
+  {% endif %}
+{% endif %}

@@ -1,0 +1,149 @@
+{% comment %}
+  Section Rendering API endpoint for dynamic sibling color swatches.
+
+  Called by assets/dynamic-sibling-swatches.js when a shopper picks a sibling
+  color (each color is a separate product). It returns the body of the target
+  product's card; product-card.js morphs [data-product-card-body] in place so
+  the live card shows the selected sibling without a full page reload.
+
+  Kept separate from section-rendering-product-card.liquid, which the theme's
+  variant-picker.js uses to morph in-product variant swatches. Two different
+  jobs, two sections.
+{% endcomment %}
+
+{% liquid
+  if product == blank
+    assign product = closest.product
+  endif
+
+  assign variant = product.selected_or_first_available_variant
+  assign url = variant.url | default: product.first_available_variant.url | default: product.url
+
+  assign featured_media_url = ''
+
+  if settings.transition_to_main_product
+    assign featured_image = variant.featured_image | default: product.featured_media.preview_image
+    assign featured_media_url = featured_image | image_url: width: 500
+  endif
+%}
+
+<product-card
+  data-sibling-product-card
+  data-product-id="{{ product.id }}"
+  {% # theme-check-disable UnknownFilter %}
+  view-event-payload="{{ product | standard_event_data: 'view', context: 'collection' | escape }}"
+  {% # theme-check-enable UnknownFilter %}
+  {% if settings.transition_to_main_product %}
+    data-product-transition="true"
+
+    {% if featured_media_url != blank %}
+      data-featured-media-url="{{ featured_media_url }}"
+    {% endif %}
+  {% endif %}
+>
+  <a
+    href="{{ url }}"
+    class="product-card__link"
+    ref="productCardLink"
+  >
+    <span class="visually-hidden">{{ product.title }}</span>
+  </a>
+  <div data-product-card-body>
+    {% content_for 'block', type: '_product-card-gallery', id: 'card-gallery', closest.product: product %}
+    {% content_for 'block', type: 'product-title', id: 'product-title', closest.product: product %}
+    {% content_for 'block', type: 'price', id: 'price', closest.product: product %}
+  </div>
+</product-card>
+
+{% schema %}
+{
+  "name": "t:names.product_card_rendering",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    {
+      "type": "_product-card-gallery"
+    },
+    {
+      "type": "product-title"
+    },
+    {
+      "type": "price"
+    }
+  ],
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "t:settings.product"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.product_card_rendering",
+      "blocks": {
+        "card-gallery": {
+          "type": "_product-card-gallery",
+          "static": true,
+          "settings": {
+            "image_ratio": "adapt",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          }
+        },
+        "product-title": {
+          "type": "product-title",
+          "static": true,
+          "settings": {
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 4,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          }
+        },
+        "price": {
+          "type": "price",
+          "static": true,
+          "settings": {
+            "show_sale_price_first": true,
+            "show_installments": false,
+            "show_tax_info": false,
+            "type_preset": "h6",
+            "width": "100%",
+            "alignment": "left",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          }
+        }
+      }
+    }
+  ]
+}
+{% endschema %}

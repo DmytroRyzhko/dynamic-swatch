@@ -3,7 +3,7 @@ import VariantPicker from '@theme/variant-picker';
 import { ProductComponent } from '@theme/view-event-elements';
 import { debounce, isDesktopBreakpoint, mediaQueryLarge, yieldToMainThread } from '@theme/utilities';
 import { SlideshowSelectEvent } from '@theme/events';
-import { morph } from '@theme/morph';
+import { morph, MORPH_OPTIONS } from '@theme/morph';
 import { StandardEvents, ProductSelectEvent } from '@shopify/events';
 
 /**
@@ -280,7 +280,8 @@ export class ProductCard extends ProductCardLink {
    * @param {Document} html - The parsed HTML document with updated variant data.
    */
   #updateProductUrl(html) {
-    const responseProductCard = html.querySelector('product-card');
+    const responseProductCard =
+      html.querySelector('[data-sibling-product-card]') ?? html.querySelector('product-card');
     const anchorElement = responseProductCard?.querySelector('a');
     const featuredMediaUrl = responseProductCard?.getAttribute('data-featured-media-url');
 
@@ -520,6 +521,63 @@ export class ProductCard extends ProductCardLink {
    * Resets the variant.
    */
   resetVariant = debounce(this.#resetVariant, 100);
+
+  /**
+   * Morphs [data-product-card-body] from a sibling product SRA response.
+   * Swatches stay outside the morph target so their order stays stable.
+   *
+   * @param {Document} html - Parsed HTML from the section rendering response.
+   */
+  updateFromSiblingProduct(html) {
+    const responseCard = html.querySelector('[data-sibling-product-card]');
+    const nextBody = responseCard?.querySelector('[data-product-card-body]');
+    const currentBody = this.querySelector('[data-product-card-body]');
+
+    if (!responseCard || !nextBody || !currentBody) {
+      return;
+    }
+
+    // The sibling section renders the gallery with its own block defaults, so its
+    // computed aspect ratio can differ from the live grid. Capture the current
+    // ratio and re-apply it after the morph to keep every card the same height.
+    const currentRatio = this.refs.cardGallery?.style.getPropertyValue('--gallery-aspect-ratio');
+
+    morph(currentBody, nextBody, {
+      ...MORPH_OPTIONS,
+      childrenOnly: true,
+    });
+
+    if (currentRatio) {
+      this.refs.cardGallery?.style.setProperty('--gallery-aspect-ratio', currentRatio);
+    }
+
+    const productId = responseCard.getAttribute('data-product-id');
+
+    if (productId) {
+      this.setAttribute('data-product-id', productId);
+      this.closest('li[data-product-id]')?.setAttribute('data-product-id', productId);
+    }
+
+    const viewPayload = responseCard.getAttribute('view-event-payload');
+
+    if (viewPayload) {
+      this.setAttribute('view-event-payload', viewPayload);
+    }
+
+    this.#updateProductUrl(html);
+
+    const responseLink = responseCard.querySelector('[ref="productCardLink"]');
+    const linkTitle = responseLink?.querySelector('.visually-hidden');
+    const currentTitle = this.refs.productCardLink?.querySelector('.visually-hidden');
+
+    if (linkTitle && currentTitle) {
+      currentTitle.textContent = linkTitle.textContent;
+    }
+
+    this.refs.quickAdd?.clearCache?.();
+    this.#handleQuickAdd();
+    this.refs.quickAdd?.fetchProductPage(this.productPageUrl);
+  }
 }
 
 if (!customElements.get('product-card')) {

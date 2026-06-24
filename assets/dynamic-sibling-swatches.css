@@ -1,0 +1,64 @@
+dynamic-sibling-swatches {
+  --variant-picker-swatch-width: 24px;
+  --variant-picker-swatch-height: 24px;
+
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: 100%;
+  padding-block: var(--padding-xs);
+  padding-inline: var(--focus-outline-offset, 2px);
+}
+
+.dynamic-sibling-swatches__fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  margin: 0;
+  padding: var(--focus-outline-offset, 2px);
+  border: 0;
+  min-inline-size: 0;
+}
+
+.dynamic-sibling-swatches__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--variant-picker-swatch-radius, 50%);
+  background: transparent;
+  cursor: pointer;
+}
+
+.dynamic-sibling-swatches__button .swatch {
+  width: 24px;
+  height: 24px;
+}
+
+.dynamic-sibling-swatches__button[aria-current='true'] .swatch,
+.dynamic-sibling-swatches__button:hover .swatch {
+  outline: var(--focus-outline-width) solid var(--color-foreground);
+  outline-offset: var(--focus-outline-offset);
+}
+
+.dynamic-sibling-swatches[aria-busy='true'] {
+  cursor: progress;
+}
+
+.dynamic-sibling-swatches--loading .dynamic-sibling-swatches__button[aria-current='true'] .swatch {
+  opacity: 0.6;
+}
+
+@media (hover: none) {
+  .dynamic-sibling-swatches__button:hover .swatch {
+    outline: none;
+  }
+
+  .dynamic-sibling-swatches__button[aria-current='true'] .swatch {
+    outline: var(--focus-outline-width) solid var(--color-foreground);
+    outline-offset: var(--focus-outline-offset);
+  }
+}

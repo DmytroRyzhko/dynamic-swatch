@@ -368,6 +368,10 @@
       "in_cart": "in cart",
       "default_title": "Default Title",
       "sticky_add_to_cart": "Quick add to cart bar"
+    },
+    "dynamic_swatches": {
+      "legend": "Color",
+      "color_label": "{{ color }}"
     }
   }
 }

@@ -1,0 +1,45 @@
+{%- doc -%}
+  Renders one sibling color swatch as a button.
+
+  The swatch shows the product's featured image (each color is its own
+  product). A color option swatch is used as a fallback when the product has
+  no image.
+
+  @param {object} color_product - The product this swatch links to.
+  @param {number} current_id - The id of the product currently shown on the card.
+
+  @example
+  {% render 'dynamic-sibling-swatch-button', color_product: product, current_id: product.id %}
+{%- enddoc -%}
+
+{%- liquid
+  assign swatch_image = color_product.featured_media.preview_image | default: color_product.featured_image
+  assign swatch_color = null
+
+  for option in color_product.options_with_values
+    assign swatches = option.values | map: 'swatch' | compact
+
+    if swatches.size > 0
+      assign swatch_color = swatches.first
+      break
+    endif
+  endfor
+-%}
+
+<button
+  type="button"
+  class="dynamic-sibling-swatches__button"
+  data-sibling-swatch
+  data-product-url="{{ color_product.url }}"
+  aria-label="{{ 'products.dynamic_swatches.color_label' | t: color: color_product.title }}"
+  {% if color_product.id == current_id %}
+    aria-current="true"
+  {% endif %}
+>
+  {%- render 'swatch',
+    swatch: swatch_color,
+    variant_image: swatch_image,
+    force_variant_image: true,
+    label: color_product.title
+  -%}
+</button>

@@ -27,6 +27,7 @@
       "@theme/variant-picker": "{{ 'variant-picker.js' | asset_url }}",
       "@theme/media-gallery": "{{ 'media-gallery.js' | asset_url }}",
       "@theme/quick-add": "{{ 'quick-add.js' | asset_url }}",
+      "@theme/product-card": "{{ 'product-card.js' | asset_url }}",
       "@theme/paginated-list-aspect-ratio": "{{ 'paginated-list-aspect-ratio.js' | asset_url }}",
       "@theme/popover-polyfill": "{{ 'popover-polyfill.js' | asset_url }}",
       "@theme/component-quantity-selector": "{{ 'component-quantity-selector.js' | asset_url }}",
@@ -90,7 +91,13 @@
   fetchpriority="low"
 >
 
-{% if template.name == 'collection' or template.name == 'search' %}
+<script
+  src="{{ 'product-card.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
+{% if request.page_type == 'collection' or request.page_type == 'search' %}
   <link
     rel="modulepreload"
     href="{{ 'paginated-list-aspect-ratio.js' | asset_url }}"
@@ -101,6 +108,19 @@
     href="{{ 'paginated-list.js' | asset_url }}"
     fetchpriority="low"
   >
+
+  {% if settings.show_dynamic_sibling_swatches %}
+    <link
+      rel="modulepreload"
+      href="{{ 'dynamic-sibling-swatches.js' | asset_url }}"
+      fetchpriority="low"
+    >
+    <script
+      src="{{ 'dynamic-sibling-swatches.js' | asset_url }}"
+      type="module"
+      fetchpriority="low"
+    ></script>
+  {% endif %}
 {% endif %}
 
 <link
@@ -153,11 +173,6 @@
 ></script>
 <script
   src="{{ 'variant-picker.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-card.js' | asset_url }}"
   type="module"
   fetchpriority="low"
 ></script>
