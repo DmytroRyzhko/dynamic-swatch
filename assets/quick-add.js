@@ -173,6 +173,13 @@ export class QuickAddComponent extends Component {
   };
 
   /**
+   * Clears cached product page fragments (e.g. after a sibling product card swap).
+   */
+  clearCache() {
+    this.#cachedContent.clear();
+  }
+
+  /**
    * Fetches the product page content
    * @param {string} productPageUrl - The URL of the product page to fetch
    * @returns {Promise<Document | null>}

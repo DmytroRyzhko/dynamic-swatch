@@ -1,0 +1,34 @@
+{%- doc -%}
+  Renders the sibling color swatches for a product card.
+
+  Each sibling color is a separate product, linked through the
+  `custom.related_products_by_color` metafield (list.product_reference). The
+  current product is always included: if it isn't already listed in the
+  metafield, it is appended so the active color shows in the group.
+
+  Render only when the feature is enabled (see snippets/product-card.liquid).
+
+  @param {object} product - The product currently shown on the card.
+
+  @example
+  {% render 'dynamic-sibling-swatches', product: product %}
+{%- enddoc -%}
+
+{%- liquid
+  assign siblings = product.metafields.custom.related_products_by_color.value
+  assign current_in_siblings = siblings | has: 'id', product.id
+-%}
+
+<dynamic-sibling-swatches class="dynamic-sibling-swatches">
+  <fieldset class="dynamic-sibling-swatches__fieldset">
+    <legend class="visually-hidden">{{- 'products.dynamic_swatches.legend' | t -}}</legend>
+
+    {%- for sibling in siblings -%}
+      {%- render 'dynamic-sibling-swatch-button', color_product: sibling, current_id: product.id -%}
+    {%- endfor -%}
+
+    {%- unless current_in_siblings -%}
+      {%- render 'dynamic-sibling-swatch-button', color_product: product, current_id: product.id -%}
+    {%- endunless -%}
+  </fieldset>
+</dynamic-sibling-swatches>

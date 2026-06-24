@@ -1889,6 +1889,13 @@
         "id": "product_card_carousel",
         "label": "t:settings.product_card_carousel",
         "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "show_dynamic_sibling_swatches",
+        "label": "t:settings.show_dynamic_sibling_swatches",
+        "info": "t:info.show_dynamic_sibling_swatches",
+        "default": true
       }
     ]
   },

@@ -57,6 +57,21 @@
   if block_settings.background_color != blank
     render 'contrast-override', background_color: block_settings.background_color, text_color: block_settings.text_color, section_id: block.id
   endif
+
+  # Dynamic sibling color swatches: only on listing pages, for products that
+  # link siblings through the custom.related_products_by_color metafield.
+  assign on_listing_page = false
+
+  if request.page_type == 'collection' or request.page_type == 'search'
+    assign on_listing_page = true
+  endif
+
+  assign sibling_count = product.metafields.custom.related_products_by_color.value.count
+  assign show_sibling_swatches = false
+
+  if settings.show_dynamic_sibling_swatches and on_listing_page and onboarding == false and sibling_count > 0
+    assign show_sibling_swatches = true
+  endif
 %}
 
 <product-card
@@ -115,7 +130,14 @@
       {% if block_settings.padding-block-end > 0 %}--zoom-out-padding-block-end: min(var(--padding-xs), {{ block_settings.padding-block-end | times: 0.7}}px);{% endif %}
     "
   >
-    {{ children }}
+    {% if show_sibling_swatches %}
+      <div data-product-card-body>
+        {{ children }}
+      </div>
+      {% render 'dynamic-sibling-swatches', product: product %}
+    {% else %}
+      {{ children }}
+    {% endif %}
   </div>
 </product-card>
 
